@@ -93,3 +93,4 @@ https://console.groq.com/docs/production-readiness/security-onboarding
 ---
 
 本專案為課堂用途的原創互動遊戲原型，尚非具備後端保密與多人連線能力的正式服務。
+GitHub Pages deployment test.
