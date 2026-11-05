@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="一人玩家與四名 AI 嫌疑犯的公開推理遊戲示範版。" />
+  <title>霧港山莊｜AI 劇本殺</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">M</div><div><div class="brand-name">MYSTERY ROOM</div><div class="brand-sub">AI MULTI-AGENT MURDER MYSTERY</div></div></div>
+    <div class="top-meta"><span id="modePill" class="pill muted">GitHub Pages 演示版</span><span id="tokenPill" class="pill">Token 0</span><button id="resetBtn" class="ghost-btn" hidden>重新開始</button></div>
+  </header>
+
+  <main class="shell">
+    <section class="hero-row">
+      <div><div class="eyebrow">INTERACTIVE MYSTERY EXPERIENCE</div><h1>霧港山莊的<br><em>最後一杯茶</em></h1><p class="hero-desc">四名嫌疑犯，各自保有秘密。你能從公開證詞與矛盾之中，找出真正的兇手嗎？</p></div>
+      <div class="hero-stamp"><span>CASE</span><strong>001</strong><small>ORIGINAL STORY</small></div>
+    </section>
+
+    <section id="setupPanel" class="panel setup-panel">
+      <div class="section-heading"><div><div class="eyebrow">CASE SELECTION</div><h2>建立一場新案件</h2></div><span class="step-tag">01 / START</span></div>
+      <div class="case-card">
+        <div class="case-art"><div class="moon"></div><div class="mansion">⌂</div><div class="rain-lines"></div><div class="case-art-label">THE LAST CUP OF TEA</div></div>
+        <div class="case-info"><div class="tag-row"><span class="tag">本格推理</span><span class="tag">4 位 AI 嫌疑犯</span><span class="tag">原創測試劇本</span></div><h3>霧港山莊的最後一杯茶</h3><p>暴風雨封鎖了山莊。主人在書房被發現死亡，四名與他關係密切的人，各自有不願公開的秘密。</p><div class="case-facts"><span>👥 1 位玩家 + 4 位角色</span><span>◷ 約 25–40 分鐘</span></div></div>
+      </div>
+      <div class="setup-note"><strong>GitHub Pages 靜態演示版：</strong>不需要安裝 Python、不需要 API Key。此版本使用預先設計的角色回覆測試遊戲流程，不會呼叫真正的 Groq 模型，也不會消耗 Token。若要啟用真正的 AI 動態對話，必須另外部署安全的後端服務。</div>
+      <button id="newGameBtn" class="primary-btn">建立案件並進入故事 <span>→</span></button>
+    </section>
+
+    <section id="gamePanel" hidden>
+      <div class="stage-nav" id="stageNav"></div>
+      <div class="game-grid">
+        <div class="main-column">
+          <section id="introPanel" class="panel" hidden>
+            <div class="section-heading"><div><div class="eyebrow">PROLOGUE</div><h2>案件背景</h2></div><span class="step-tag">STAGE 01</span></div>
+            <div id="openingText" class="story-text"></div>
+            <div class="divider"></div>
+            <div class="section-heading"><div><div class="eyebrow">CHARACTER INTRODUCTIONS</div><h2>嫌疑犯自我介紹</h2></div><span class="small-muted">固定劇本內容・不消耗 Token</span></div>
+            <div id="introCards" class="intro-list"></div>
+            <div class="action-row"><button id="startInvestigationBtn" class="primary-btn">進入公開調查 <span>→</span></button></div>
+          </section>
+
+          <section id="investigationPanel" class="panel" hidden>
+            <div class="section-heading"><div><div class="eyebrow">PUBLIC CROSS-EXAMINATION</div><h2>公開交叉詢問</h2></div><span id="turnProgress" class="step-tag">0 / 4 回合</span></div>
+            <p class="section-desc">所有問題與回答都會公開。每位角色依序選擇一名對象，最多進行三組問答；同一名嫌疑犯最多接受兩位不同角色詢問。</p>
+            <div id="turnOrder" class="turn-order"></div>
+            <div class="turn-control"><div><div class="eyebrow">NEXT INTERROGATOR</div><h3 id="currentTurnName">等待開始</h3><p id="turnHint">每次只執行一位角色的問答。</p></div><button id="runTurnBtn" class="primary-btn">執行下一位詢問 <span>→</span></button></div>
+            <div id="turnResult" class="turn-result" hidden></div>
+            <div class="clue-block"><div class="section-heading compact"><h3>目前公開線索</h3><span class="small-muted">所有角色皆可取得</span></div><div id="clueList" class="clue-list"></div></div>
+            <div class="action-row"><button id="finalizeBtn" class="secondary-btn" hidden>前往最終陳述 →</button></div>
+          </section>
+
+          <section id="finalPanel" class="panel" hidden>
+            <div class="section-heading"><div><div class="eyebrow">FINAL STATEMENTS</div><h2>嫌疑犯最後陳述</h2></div><span class="step-tag">STAGE 03</span></div>
+            <p class="section-desc">每個角色依照自己的立場及已公開紀錄提出最後說明。本演示版使用預先設計的測試陳述。</p>
+            <div id="finalList" class="final-list"></div>
+            <button id="generateFinalBtn" class="primary-btn">產生四位角色的最後陳述 <span>→</span></button>
+            <button id="goVoteBtn" class="secondary-btn" hidden>前往玩家投票 →</button>
+          </section>
+
+          <section id="votePanel" class="panel" hidden>
+            <div class="section-heading"><div><div class="eyebrow">YOUR VERDICT</div><h2>由你決定兇手</h2></div><span class="step-tag">STAGE 04</span></div>
+            <p class="section-desc">請依照所有公開證詞、調查紀錄及角色最後陳述，選出你認為真正的兇手。最終投票由玩家獨立決定。</p>
+            <div id="voteChoices" class="vote-choices"></div>
+            <button id="submitVoteBtn" class="primary-btn" disabled>提交最終判斷</button>
+          </section>
+
+          <section id="revealPanel" class="panel" hidden>
+            <div class="reveal-top"><div class="eyebrow">CASE CLOSED</div><h2 id="revealTitle">真相揭曉</h2><p id="revealSub"></p></div>
+            <div id="truthCard" class="truth-card"></div>
+            <div class="section-heading compact"><h3>完整時間線</h3></div><div id="timeline" class="timeline"></div>
+            <div class="section-heading compact"><h3>角色隱藏秘密</h3></div><div id="secretList" class="secret-list"></div>
+            <button id="playAgainBtn" class="primary-btn">重新開始案件 ↻</button>
+          </section>
+        </div>
+
+        <aside class="side-column">
+          <section class="panel side-panel"><div class="section-heading compact"><div><div class="eyebrow">SUSPECTS</div><h2>嫌疑犯名單</h2></div></div><div id="suspectList" class="suspect-list"></div></section>
+          <section class="panel side-panel"><div class="section-heading compact"><div><div class="eyebrow">PUBLIC RECORD</div><h2>公開紀錄</h2></div><span id="logCount" class="small-muted">0 則</span></div><div id="publicLog" class="public-log"><div class="empty-state">遊戲開始後，所有公開問答及線索會出現在這裡。</div></div></section>
+          <section class="panel side-panel usage-panel"><div class="section-heading compact"><div><div class="eyebrow">API METER</div><h2>Token 使用量</h2></div></div><div class="usage-number" id="gameTokens">0</div><div class="usage-caption">本局實際使用 Token</div><div class="usage-bar"><span id="usageBar"></span></div><div class="usage-meta"><span>GitHub Pages 演示</span><span id="apiCalls">API 0 次</span></div><p class="tiny-note">本版本所有角色回覆皆由瀏覽器端模擬，不會呼叫 Groq API，因此 Token 消耗固定為 0。</p></section>
+        </aside>
+      </div>
+    </section>
+    <footer><span>AI MYSTERY ROOM · GITHUB PAGES MVP</span><span>原創測試劇本 · 靜態網頁演示版</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="./game.js"></script>
+</body>
+</html>

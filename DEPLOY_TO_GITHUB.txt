@@ -1,0 +1,13 @@
+GitHub Pages 部署快速步驟
+
+1. GitHub -> New repository -> 建立 Public repository，例如 ai-murder-mystery。
+2. 將本資料夾中的「所有檔案與資料夾」上傳到 repository 根目錄。
+   請確認 index.html 直接位於根目錄。
+3. 預設分支使用 main。
+4. Repository -> Settings -> Pages。
+5. Build and deployment -> Source 選擇 GitHub Actions。
+6. 確認 .github/workflows/deploy.yml 已上傳。
+7. Repository -> Actions 查看部署流程，綠色成功後，回到 Settings -> Pages 取得網址。
+
+注意：這個 GitHub Pages 版本是免 API Key 的流程模擬版，不會呼叫 Groq。
+GitHub Pages 不執行 Python/FastAPI。要啟用真正 Groq AI，需另行部署後端並將 API Key 存於後端環境變數；不可把 Key 放進公開前端程式碼。
