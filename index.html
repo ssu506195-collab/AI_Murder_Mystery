@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=3.1.1">
 </head>
 <body>
   <div class="grain"></div>
@@ -19,6 +19,7 @@
       <span><b>MYSTERY ROOM</b><small>AI MULTI-AGENT MURDER MYSTERY</small></span>
     </a>
     <div class="topbar-right">
+      <span class="build-badge" title="目前部署版本">V3.1.1 · 第一劇本</span>
       <span id="modeBadge" class="mode-badge">尚未開始</span>
       <span id="tokenBadge" class="token-badge">TOKEN 0</span>
       <button id="settingsBtn" class="icon-btn" title="遊戲設定">⚙</button>
@@ -199,8 +200,8 @@
   <div id="busyOverlay" class="busy-overlay" hidden><div class="spinner"></div><b id="busyText">角色正在思考……</b><small>為避免超過 API 速率限制，AI 角色會依序發言。</small></div>
   <div id="toast" class="toast" role="status"></div>
 
-  <script src="./data/cases.js"></script>
-  <script src="./data/demo-private.js"></script>
-  <script src="./app.js"></script>
+  <script src="./data/cases.js?v=3.1.1"></script>
+  <script src="./data/demo-private.js?v=3.1.1"></script>
+  <script src="./app.js?v=3.1.1"></script>
 </body>
 </html>

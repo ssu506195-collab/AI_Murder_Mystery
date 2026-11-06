@@ -8,9 +8,9 @@ window.MYSTERY_CASES = [
     "genre": "古典推理・人際秘密・封閉空間",
     "players": "1 位玩家 + 4 位 AI",
     "duration": "約 45–60 分鐘",
-    "scene": "assets/scene/manor-temp.webp",
+    "scene": "assets/scene/manor-temp.webp?v=3.1.1",
     "sceneLabel": "霧港山莊・書房",
-    "cover": "assets/scene/manor-temp.webp",
+    "cover": "assets/scene/manor-temp.webp?v=3.1.1",
     "opening": [
       "海風猛烈拍打著霧港山莊的窗戶。暴風雨切斷了通往山下的道路，今晚受邀來到山莊的四名賓客與負責接待的管家，只能暫時留在這棟遠離市區的老宅。",
       "山莊主人江承遠在晚餐時宣布，隔天上午將公開一份重新整理的合作帳務。他沒有說明細節，但這句話讓餐桌上的氣氛瞬間凝重。",
@@ -27,7 +27,7 @@ window.MYSTERY_CASES = [
         "intro": "各位晚上好，我是林予安，在霧港山莊服務十八年，負責主人日常起居與今晚的接待。江先生晚餐前交代，今晚請各位留下，是因為他明天要重新整理一份合作帳務資料。晚餐後我會在廚房和一樓走廊處理收拾工作。若各位需要任何東西，可以直接告訴我。",
         "introAction": "林予安先替眾人斟茶，確認賓客到齊，再向大家說明今晚聚會的安排。",
         "publicSummary": "山莊管家，負責晚宴、茶水及房間管理；聲稱晚餐後主要在廚房工作。",
-        "portrait": "assets/portraits/chen-mo.webp"
+        "portrait": "assets/portraits/chen-mo.webp?v=3.1.1"
       },
       {
         "id": "r2",
@@ -38,7 +38,7 @@ window.MYSTERY_CASES = [
         "intro": "各位，我是陳以恆，與江先生合作已有十多年。今晚受邀前來，是因為他說要談一份合作帳務的整理結果。我承認最近我們對公司的資金安排有不同看法，但商業夥伴之間出現意見不合並不稀奇。我希望各位先把事實釐清，不要把商業爭執直接當成犯罪動機。",
         "introAction": "陳以恆先向眾人致意，談到與死者多年的合作關係，刻意淡化近期的財務爭執。",
         "publicSummary": "死者的商業合作夥伴，承認近期有帳務爭執，但聲稱晚餐後一直在客廳。",
-        "portrait": "assets/portraits/lin-che.webp"
+        "portrait": "assets/portraits/lin-che.webp?v=3.1.1"
       },
       {
         "id": "r3",
@@ -49,7 +49,7 @@ window.MYSTERY_CASES = [
         "intro": "我是周雨彤，江承遠是我的舅舅。我從小就常來霧港山莊，但近幾年我們因為家族房產及未來安排有過爭執。今晚我原本希望和他談清楚一些事情，沒想到會發生這種事。我知道各位可能會懷疑我，但家人之間的爭吵，不代表我會傷害自己的舅舅。",
         "introAction": "周雨彤坐在靠近窗邊的位置，先說明自己與死者的親屬關係，再表達對舅舅突然死亡的震驚。",
         "publicSummary": "死者外甥女，因家族房產安排與死者有爭執，聲稱案發時在東側樓梯附近。",
-        "portrait": "assets/portraits/su-yun.webp"
+        "portrait": "assets/portraits/su-yun.webp?v=3.1.1"
       },
       {
         "id": "r4",
@@ -60,7 +60,7 @@ window.MYSTERY_CASES = [
         "intro": "我是許明哲，擔任江先生的家庭醫師已經八年。我今晚受邀前來是以私人賓客身分，不是來進行正式看診。江先生近年有需要持續追蹤的健康狀況，但醫療資料涉及個人隱私，我不會在沒有必要的情況下公開。若各位有關於他最後一段時間的疑問，我會盡量提供我能確認的資訊。",
         "introAction": "許明哲先確認現場是否有人需要協助，接著表明自己是死者的家庭醫師，但不會隨意公開病歷。",
         "publicSummary": "死者的家庭醫師，知道死者有需追蹤的健康狀況，重視病患隱私。",
-        "portrait": "assets/portraits/xu-zhe.webp"
+        "portrait": "assets/portraits/xu-zhe.webp?v=3.1.1"
       },
       {
         "id": "r5",
@@ -71,7 +71,7 @@ window.MYSTERY_CASES = [
         "intro": "我是葉琳，半年前離開江先生的私人秘書職務。過去我負責他的行程、合約及部分文件歸檔，所以對書房的文件管理並不陌生。今晚收到邀請，是因為江先生希望釐清一些舊文件。我知道自己可能會被問到過去的工作，但我希望大家把文件問題和這起死亡事件分開看待。",
         "introAction": "葉琳先觀察在場眾人的反應，最後才開口，說明自己雖已離職，仍因舊文件問題受邀。",
         "publicSummary": "死者前任私人秘書，熟悉書房文件與帳務歸檔，近期仍與死者有舊文件往來。",
-        "portrait": "assets/portraits/ye-lin.webp"
+        "portrait": "assets/portraits/ye-lin.webp?v=3.1.1"
       }
     ],
     "introduction_order": [

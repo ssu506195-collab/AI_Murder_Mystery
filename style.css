@@ -58,3 +58,7 @@
 .speech .speaker{font-size:10px}.speech.answer .speaker{color:#a6c39b}
 @keyframes speechEnter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 @media(max-width:680px){.player-dossier-hero{grid-template-columns:105px 1fr;gap:12px}.player-dossier-hero>img{height:165px}.player-dossier-hero-meta h3{font-size:20px}.dossier-section{padding:12px}.dossier-row{font-size:11px}.duel-stage{grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);gap:5px;padding:12px 0}.duel-person{min-height:178px;padding:0 4px 9px}.duel-person-meta b{font-size:12px}.duel-person-meta small{font-size:8px}.duel-role-label{font-size:7px;top:6px;left:5px;padding:4px 5px}.duel-emblem{width:32px;height:32px;font-size:11px}.duel-center>small{font-size:6px}.duel-round{font-size:6px}.speech-row.question{padding-right:5%}.speech-row.answer{padding-left:5%}.speech{font-size:11px;padding:10px 11px}}
+
+/* V3.1.1 deployment marker */
+.build-badge{display:inline-flex;align-items:center;padding:6px 10px;border:1px solid rgba(216,181,110,.5);border-radius:999px;color:#f1d59a;font-size:10px;letter-spacing:.08em;white-space:nowrap;background:rgba(216,181,110,.08)}
+@media(max-width:640px){.build-badge{font-size:9px;padding:5px 7px}}

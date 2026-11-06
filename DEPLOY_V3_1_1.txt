@@ -1,0 +1,25 @@
+# AI Murder Mystery — GitHub Pages V3.1.1 Hotfix
+
+本包以 V3.1 第一劇本版為基礎，主要修正瀏覽器/CDN 快取造成舊版 `app.js`、`style.css` 或圖片仍被使用的問題。
+
+## 上傳方式
+1. 解壓縮本 ZIP。
+2. 將 ZIP 根目錄內的所有檔案及資料夾上傳到 GitHub Repository 的 `main` 分支根目錄。
+3. 同名檔案請覆蓋，並 Commit。
+4. 等 GitHub Pages 部署完成後，開啟網站並按 `Ctrl + Shift + R`，或使用無痕視窗。
+5. 頁面右上方應看到 `V3.1.1 · 第一劇本` 標記。
+
+## 重要確認
+- 本包只保留第一份劇本《霧港山莊的最後一杯茶》。
+- `index.html` 載入 `data/cases.js?v=3.1.1`、`data/demo-private.js?v=3.1.1`、`app.js?v=3.1.1`。
+- CSS、JS、劇本資料及場景/人物圖片皆加上版本參數，避免瀏覽器繼續使用 V2 的同名快取檔。
+- `index.html` 位於 ZIP 根目錄。
+- 舊版 `game.js` 不會被新版入口載入；可等新版確認正常後，再從 Repository 刪除舊 `game.js`。
+
+## 部署後驗證
+開啟以下網址確認回傳的程式包含 V3.1.1：
+- `https://ssu506195-collab.github.io/AI_Murder_Mystery/index.html`
+- `https://ssu506195-collab.github.io/AI_Murder_Mystery/app.js?v=3.1.1`
+- `https://ssu506195-collab.github.io/AI_Murder_Mystery/data/cases.js?v=3.1.1`
+
+此為模擬模式前端更新包；Groq AI 模式仍需另外部署 Worker，且不要把 Worker 私人劇本資料上傳到公開 Repository。
