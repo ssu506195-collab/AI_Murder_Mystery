@@ -1,7 +1,7 @@
 'use strict';
 
 const $ = (id) => document.getElementById(id);
-const CASES = window.MYSTERY_CASES || [];
+const CASES = (window.MYSTERY_CASES || []).filter(c => c.enabled !== false);
 const DEMO = window.MYSTERY_DEMO_PRIVATE || {};
 const state = {
   mode: 'demo', workerUrl: '', apiKey: '', model: 'openai/gpt-oss-20b',
@@ -170,7 +170,7 @@ async function confirmRole() {
       state.sessionToken=data.session_token; state.playerCard=data.player_card;
     } else {
       const demo=DEMO[state.selectedCase.id]; const privateRole=demo.roles[role];
-      state.playerCard={...privateRole,is_culprit:role===demo.culpritId,name:getRole(role).name,occupation:getRole(role).occupation,secret:privateRole.secret,goal:privateRole.goal};
+      state.playerCard={...privateRole,is_culprit:role===demo.truth.culprit_id,name:getRole(role).name,occupation:getRole(role).occupation,secret:privateRole.secret,goal:privateRole.goal,dossier:privateRole.dossier};
     }
     initializeGameState(); renderPlayerCard(); closeRoleModal(); setScreen('prologueScreen'); startOpening();
   } catch(e) { showToast(`建立案件失敗：${e.message}`,6500); }
@@ -186,19 +186,62 @@ function initializeGameState() {
 function renderPlayerCard() {
   const r=getRole(state.playerRoleId), card=state.playerCard;
   const root=$('playerCardContent');root.replaceChildren();
-  const inner=document.createElement('div');inner.className='player-card-inner';
+  const dossier=card.dossier||{};
+  const inner=document.createElement('div');inner.className='player-dossier-card';
+  const hero=document.createElement('div');hero.className='player-dossier-hero';
   const img=document.createElement('img');img.src=r.portrait;img.alt=r.name;
-  const details=document.createElement('div');details.className='player-card-details';
+  const meta=document.createElement('div');meta.className='player-dossier-hero-meta';
+  const num=document.createElement('span');num.className='eyebrow';num.textContent=`ROLE ${String(r.number).padStart(2,'0')} · PERSONAL DOSSIER`;
   const name=document.createElement('h3');name.textContent=r.name;
-  const occupation=document.createElement('div');occupation.className='occupation';occupation.textContent=`${r.number} 號｜${r.occupation}`;
-  const rel=document.createElement('p');rel.className='muted';rel.textContent=r.relation;
-  details.append(name,occupation,rel);
-  if(card.is_culprit){const badge=document.createElement('div');badge.className='culprit-banner';badge.textContent='你是真正的兇手｜請隱瞞犯案真相';details.appendChild(badge);}
-  const secret=document.createElement('div');secret.className='private-block';secret.innerHTML='<b>你的私人秘密</b>';const sp=document.createElement('p');sp.textContent=card.secret||'目前沒有額外私人秘密。';secret.appendChild(sp);
-  const goal=document.createElement('div');goal.className='private-block';goal.innerHTML='<b>你的個人任務</b>';const gp=document.createElement('p');gp.textContent=card.goal||'根據證據找出真相。';goal.appendChild(gp);
-  details.append(secret,goal);inner.append(img,details);root.appendChild(inner);
+  const occ=document.createElement('div');occ.className='occupation';occ.textContent=r.occupation;
+  const rel=document.createElement('p');rel.textContent=r.relation;
+  meta.append(num,name,occ,rel);hero.append(img,meta);inner.append(hero);
+  if(card.is_culprit){const badge=document.createElement('div');badge.className='culprit-banner';badge.textContent='你是真正的兇手｜請依照你的專屬劇本保護犯案秘密';inner.append(badge);}
+  const addSection=(title,content,cls='dossier-section')=>{
+    if(!content || (Array.isArray(content)&&!content.length))return;
+    const sec=document.createElement('section');sec.className=cls;const h=document.createElement('h4');h.textContent=title;sec.append(h);
+    if(Array.isArray(content)){
+      const list=document.createElement('div');list.className='dossier-list';
+      content.forEach(item=>{
+        const row=document.createElement('div');row.className='dossier-row';
+        if(typeof item==='string'){row.textContent=item;}
+        else if(item && typeof item==='object'){
+          const top=document.createElement('div');top.className='dossier-row-top';
+          if(item.name){const person=document.createElement('b');person.textContent=item.name;top.append(person);}
+          if(item.time){const time=document.createElement('b');time.textContent=item.time;top.append(time);}
+          if(item.location){const loc=document.createElement('span');loc.textContent=item.location;top.append(loc);}
+          row.append(top);
+          const action=document.createElement('p');action.textContent=item.action||item.detail||'';row.append(action);
+          if(item.knowledge){const know=document.createElement('small');know.textContent=`你知道：${item.knowledge}`;row.append(know);}
+        }
+        list.append(row);
+      });sec.append(list);
+    } else {const p=document.createElement('p');p.textContent=String(content);sec.append(p);}
+    inner.append(sec);
+  };
+  addSection('人物身分',dossier.identity);
+  addSection('人物背景',dossier.background||card.background);
+  addSection('與其他角色的關係',dossier.relationships);
+  addSection('案發當晚的真實行動時間線',dossier.personal_timeline);
+  addSection('你確定知道的事情',dossier.known_facts);
+  addSection('你的私人秘密',dossier.secret||card.secret,'dossier-section dossier-secret');
+  addSection('第一輪調查任務',dossier.first_round?[
+    dossier.first_round.objective,
+    ...(dossier.first_round.may_reveal||[]).map(x=>`可以公開：${x}`),
+    ...(dossier.first_round.prefer_hide||[]).map(x=>`暫時隱瞞：${x}`),
+    `本輪任務：${dossier.first_round.task||''}`
+  ]:[]);
+  addSection('第二輪調查任務',dossier.second_round?[
+    dossier.second_round.objective,
+    ...(dossier.second_round.may_reveal||[]).map(x=>`可以公開：${x}`),
+    ...(dossier.second_round.prefer_hide||[]).map(x=>`暫時隱瞞：${x}`),
+    `本輪任務：${dossier.second_round.task||''}`
+  ]:[]);
+  addSection('對外說法／公開版本',dossier.cover_story);
+  addSection('角色扮演與回答注意事項',dossier.behavior_rules);
+  addSection('最終目標',dossier.final_objective||card.goal);
+  root.append(inner);
 }
-
 function typeText(element,text,speed=26) {
   clearInterval(state.typeTimer); if(state.typeResolve) state.typeResolve();
   element.textContent='';element.classList.add('typing');let i=0;let completed=false;
@@ -239,7 +282,7 @@ function renderIntroRoster() {
 async function showCharacterIntro() {
   const r=getCase().cast[state.introIndex];
   $('activePortrait').src=r.portrait;$('activePortrait').alt=r.name;$('portraitNumber').textContent=String(r.number).padStart(2,'0');
-  $('activeName').textContent=r.name;$('activeOccupation').textContent=r.occupation;$('activeRelation').textContent=`與死者的關係：${r.relation}`;
+  $('activeName').textContent=r.name;$('activeOccupation').textContent=r.occupation;$('activeRelation').textContent=`與死者的關係：${r.relation}`;$('activeStageAction').textContent=r.introAction?`【登場動作】${r.introAction}`:'';
   $('introCount').textContent=`${String(state.introIndex+1).padStart(2,'0')} / 05`;
   $('characterKicker').textContent=playerIsRole(r.id)?'YOUR CHARACTER · PUBLIC INTRODUCTION':'AI CHARACTER · PUBLIC INTRODUCTION';
   document.querySelectorAll('.roster-person').forEach(el=>{el.classList.toggle('active',el.dataset.id===r.id);el.classList.toggle('done',getCase().cast.findIndex(x=>x.id===el.dataset.id)<state.introIndex);});
@@ -284,6 +327,22 @@ function renderCharacterTable() {
 function eligibleTargets(askerId) {
   return getCase().cast.filter(r=>r.id!==askerId&&(state.askedByTarget[r.id]||[]).length<2);
 }
+function renderDuelStage(askerId,targetId,speakingId=null) {
+  const asker=getRole(askerId),target=getRole(targetId);
+  if(!asker||!target)return;
+  $('duelStage').hidden=false;
+  $('stageAskerPortrait').src=asker.portrait;$('stageAskerPortrait').alt=asker.name;
+  $('stageTargetPortrait').src=target.portrait;$('stageTargetPortrait').alt=target.name;
+  $('stageAskerName').textContent=(asker.id===state.playerRoleId?'你｜':'')+`${asker.number}號 ${asker.name}`;
+  $('stageTargetName').textContent=(target.id===state.playerRoleId?'你｜':'')+`${target.number}號 ${target.name}`;
+  $('stageAskerRole').textContent=asker.occupation;$('stageTargetRole').textContent=target.occupation;
+  $('duelRound').textContent=`ROUND ${String(state.roundIndex+1).padStart(2,'0')} · EXCHANGE ${state.interview?.exchangeCount||0}/3`;
+  $('stageAsker').classList.toggle('is-speaking',speakingId===askerId);
+  $('stageAsker').classList.toggle('is-listening',!!speakingId&&speakingId!==askerId);
+  $('stageTarget').classList.toggle('is-speaking',speakingId===targetId);
+  $('stageTarget').classList.toggle('is-listening',!!speakingId&&speakingId!==targetId);
+}
+
 function renderInvestigation() {
   $('investigationBg').style.backgroundImage=`url('${getCase().scene}')`;
   const currentId=state.turnOrder[state.turnIndex];const current=getRole(currentId);
@@ -297,6 +356,7 @@ function renderInvestigation() {
   $('nextTurnBtn').hidden=!!state.interview||!state.completedTurns.includes(currentId)||state.turnIndex>=state.turnOrder.length-1;
   $('endInterviewBtn').hidden=!state.interview;
   $('turnLimit').textContent=state.interview?`${state.interview.exchangeCount} / 3 組問答`:'最多 3 組問答';
+  if(state.interview)renderDuelStage(state.interview.askerId,state.interview.targetId);else $('duelStage').hidden=true;
   renderCharacterTable();renderClues();renderPublicTranscript();
 }
 function renderPlayerActionArea(html) {const host=$('playerActionArea');host.hidden=false;host.innerHTML=html;}
@@ -310,12 +370,17 @@ async function startCurrentTurn() {
     const available=eligibleTargets(askerId);if(!available.length)throw new Error('目前沒有符合詢問限制的對象。');
     let selection;
     if(state.mode==='groq') {
-      selection=await fetchWorker('/api/ai/choose',{session_token:state.sessionToken,case_id:getCase().id,actor_id:askerId,available_target_ids:available.map(r=>r.id),asked_by_target:state.askedByTarget,public_log:state.publicLog.slice(-18),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[askerId]||[]},1400);
+      selection=await fetchWorker('/api/ai/choose',{session_token:state.sessionToken,case_id:getCase().id,actor_id:askerId,round_index:state.roundIndex,available_target_ids:available.map(r=>r.id),asked_by_target:state.askedByTarget,public_log:state.publicLog.slice(-28),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[askerId]||[]},1400);
     } else {
-      const privateRole=DEMO[getCase().id].roles[askerId];
-      const ordered=(privateRole.priority||[]).filter(id=>available.some(r=>r.id===id));
+      const demo=DEMO[getCase().id];
+      const plan=demo.question_plans?.[askerId]?.[state.roundIndex===0?'round1':'round2'];
+      const privateRole=demo.roles[askerId];
+      const ordered=[plan?.target,...(privateRole.priority||[])].filter(Boolean).filter((id,i,a)=>a.indexOf(id)===i&&available.some(r=>r.id===id));
       const targetId=ordered[0]||available[0].id;
-      selection={target_id:targetId,question:`你能否說明案發當晚的行蹤？目前公開的線索似乎與部分證詞不完全一致。`};
+      const targetPlan=targetId===plan?.target?plan:null;
+      const fallbackPlan=demo.roles[targetId]?.dossier?.default_interview;
+      selection={target_id:targetId,question:targetPlan?.question||fallbackPlan?.question||`${getRole(targetId).name}，請說明你在公開自我介紹中提到的行動與相關時間。`};
+      selection._demoPlan=targetPlan||fallbackPlan||null;
     }
     let targetId=available.some(r=>r.id===selection.target_id)?selection.target_id:available[0].id;
     await beginInterview(askerId,targetId,selection.question||'請說明案發當晚的行動。');
@@ -325,17 +390,42 @@ async function startCurrentTurn() {
 function beginInterview(askerId,targetId,question) {
   if((state.askedByTarget[targetId]||[]).length>=2)throw new Error('該角色本輪已達兩名詢問者上限。');
   state.askedByTarget[targetId].push(askerId);
-  state.interview={askerId,targetId,exchangeCount:0,currentQuestion:question,exchanges:[],waitingForPlayer:false};
+  const demoPlan=DEMO[getCase().id]?.question_plans?.[askerId]?.[state.roundIndex===0?'round1':'round2'];
+  const targetFallback=DEMO[getCase().id]?.roles?.[targetId]?.dossier?.default_interview;
+  const resolvedPlan=demoPlan?.target===targetId?demoPlan:targetFallback;
+  state.interview={askerId,targetId,exchangeCount:0,currentQuestion:question,exchanges:[],waitingForPlayer:false,demoFollowups:resolvedPlan?.followups||[],demoAnswers:resolvedPlan?.answers||[]};
   $('exchangeList').replaceChildren();$('interviewStatus').textContent=`${getRole(askerId).name} 正在公開詢問 ${getRole(targetId).name}。所有在場角色都能聽見。`;
-  renderInvestigation();
+  renderDuelStage(askerId,targetId,askerId);renderInvestigation();
   return runQuestionAnswer(question);
 }
 function appendSpeech(roleId,text,kind,displayName=null) {
-  const role=getRole(roleId);const box=document.createElement('div');box.className=`speech ${kind}`;
+  const role=getRole(roleId);const row=document.createElement('div');row.className=`speech-row ${kind}`;
+  const box=document.createElement('div');box.className=`speech ${kind}`;
   const who=document.createElement('span');who.className='speaker';who.textContent=displayName||(role?`${role.number}號 ${role.name}`:'旁白');
-  const content=document.createElement('span');content.textContent=text;box.append(who,content);$('exchangeList').appendChild(box);$('exchangeList').scrollTop=$('exchangeList').scrollHeight;
+  const content=document.createElement('span');content.textContent=text;box.append(who,content);row.append(box);$('exchangeList').appendChild(row);$('exchangeList').scrollTop=$('exchangeList').scrollHeight;
+  if(state.interview && roleId)renderDuelStage(state.interview.askerId,state.interview.targetId,roleId);
   addLog(roleId,text,kind,displayName);
 }
+function demoAnswer(role,question,roundIndex) {
+  const q=String(question||'').toLowerCase();
+  const rules=role.dossier?.response_rules||[];
+  const match=rules.map(rule=>({rule,score:(rule.keywords||[]).filter(k=>q.includes(String(k).toLowerCase())).length})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score)[0]?.rule;
+  if(match)return match.answer;
+  // Fallback remains anchored to the character's actual timeline instead of a random canned sentence.
+  const timeline=role.dossier?.personal_timeline||[];
+  const relevant=timeline.find(item=>q.includes(item.time)||q.includes(item.location));
+  if(relevant)return `${relevant.time}左右，我在${relevant.location}${relevant.action}我能確認的是：${relevant.knowledge}`;
+  return '這個問題沒有對應到我能確認的具體時間或事件。為了避免提供錯誤資訊，我不會臨時編造；請再指出一個時間、地點或具體事件。';
+}
+function demoFollowupQuestion(askerId,targetId,exchangeCount,lastAnswer) {
+  const target=getRole(targetId);
+  const fallback=[
+    `你能指出哪一份紀錄或哪位在場者可以確認這個時間點嗎？`,
+    `這個說法與目前公開線索是否存在差異？請針對差異說明。`
+  ];
+  return fallback[Math.min(exchangeCount-1,1)]||`你能否再具體說明當時的位置與同行者？`;
+}
+
 async function runQuestionAnswer(question) {
   const iv=state.interview;if(!iv)return;iv.currentQuestion=question;iv.waitingForPlayer=false;
   appendSpeech(iv.askerId,question,'question');
@@ -346,10 +436,10 @@ async function runQuestionAnswer(question) {
   try {
     let answer;
     if(state.mode==='groq') {
-      const data=await fetchWorker('/api/ai/answer',{session_token:state.sessionToken,case_id:getCase().id,actor_id:iv.targetId,question,public_log:state.publicLog.slice(-18),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[iv.targetId]||[]},1500);
+      const data=await fetchWorker('/api/ai/answer',{session_token:state.sessionToken,case_id:getCase().id,actor_id:iv.targetId,round_index:state.roundIndex,question,public_log:state.publicLog.slice(-28),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[iv.targetId]||[]},1500);
       answer=data.answer;
     } else {
-      const demo=DEMO[getCase().id].roles[iv.targetId];answer=demo.answers[iv.exchangeCount%demo.answers.length];
+      const demo=DEMO[getCase().id].roles[iv.targetId];answer=iv.demoAnswers?.[iv.exchangeCount]||demoAnswer(demo,question,state.roundIndex);
     }
     appendSpeech(iv.targetId,answer,'answer');iv.exchanges.push({question,answer});iv.exchangeCount++;
     $('turnLimit').textContent=`${iv.exchangeCount} / 3 組問答`;
@@ -366,10 +456,10 @@ async function continueOrFinish() {
     let nextQ;
     const last=iv.exchanges[iv.exchanges.length-1];
     if(state.mode==='groq') {
-      const data=await fetchWorker('/api/ai/followup',{session_token:state.sessionToken,case_id:getCase().id,actor_id:iv.askerId,previous_question:last.question,previous_answer:last.answer,exchange_count:iv.exchangeCount,public_log:state.publicLog.slice(-18),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[iv.askerId]||[]},1100);
+      const data=await fetchWorker('/api/ai/followup',{session_token:state.sessionToken,case_id:getCase().id,actor_id:iv.askerId,round_index:state.roundIndex,previous_question:last.question,previous_answer:last.answer,exchange_count:iv.exchangeCount,public_log:state.publicLog.slice(-28),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[iv.askerId]||[]},1100);
       nextQ=data.question;
     } else {
-      nextQ=`你剛才提到「${last.answer.slice(0,28)}」，那麼能否再說明當時的時間、位置，以及是否有人能證明？`;
+      nextQ=iv.demoFollowups?.[iv.exchangeCount-1]||demoFollowupQuestion(iv.askerId,iv.targetId,iv.exchangeCount,last.answer);
     }
     if(!nextQ){finishInterview(false);return;}
     await runQuestionAnswer(nextQ);
@@ -378,7 +468,7 @@ async function continueOrFinish() {
 }
 function showPlayerAnswerForm() {
   const iv=state.interview;const host=$('playerActionArea');host.hidden=false;
-  host.innerHTML=`<label>你被 ${safeText(getRole(iv.askerId).name)} 公開詢問。請依照自己的角色身分回答（最多 200 字）。</label><textarea id="playerAnswerInput" maxlength="200" placeholder="輸入你的公開回答……"></textarea><div class="form-foot"><span id="answerCount">0 / 200</span><button id="submitPlayerAnswerBtn" class="gold-btn">公開回答 →</button></div>`;
+  host.innerHTML=`<label>你被 ${safeText(getRole(iv.askerId).name)} 公開詢問。請依照自己的完整角色劇本回答（最多 200 字）；本次對話會公開給所有角色。</label><textarea id="playerAnswerInput" maxlength="200" placeholder="輸入你的公開回答……"></textarea><div class="form-foot"><span id="answerCount">0 / 200</span><button id="submitPlayerAnswerBtn" class="gold-btn">公開回答 →</button></div>`;
   $('playerAnswerInput').addEventListener('input',()=>{$('answerCount').textContent=`${$('playerAnswerInput').value.length} / 200`;});
   $('submitPlayerAnswerBtn').addEventListener('click',submitPlayerAnswer);
 }
@@ -451,11 +541,11 @@ async function generateFinalStatements() {
     for(const role of npcRoles()) {
       let result;
       if(state.mode==='groq') {
-        result=await fetchWorker('/api/ai/finalize',{session_token:state.sessionToken,case_id:getCase().id,actor_id:role.id,public_log:state.publicLog.slice(-24),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[role.id]||[],allowed_vote_ids:getCase().cast.filter(r=>r.id!==role.id).map(r=>r.id)},1700);
+        result=await fetchWorker('/api/ai/finalize',{session_token:state.sessionToken,case_id:getCase().id,actor_id:role.id,round_index:state.roundIndex,public_log:state.publicLog.slice(-24),public_clues:state.publicClues,public_introductions:getCase().cast.map(r=>({name:r.name,occupation:r.occupation,relation:r.relation,intro:r.intro})),role_memory:state.roleMemories[role.id]||[],allowed_vote_ids:getCase().cast.filter(r=>r.id!==role.id).map(r=>r.id)},1700);
       } else {
         const demo=DEMO[getCase().id];const priv=demo.roles[role.id];
         const target=(priv.priority||[])[0]||getCase().cast.find(r=>r.id!==role.id).id;
-        result={statement:demoFinalStatement(role,priv,target),vote_id:demo.votes[role.id]||target};
+        result={statement:demoFinalStatement(role,priv,target),vote_id:demo.votes?.[role.id]||target};
       }
       const voteId=getCase().cast.some(r=>r.id===result.vote_id&&r.id!==role.id)?result.vote_id:getCase().cast.find(r=>r.id!==role.id).id;
       state.finalStatements[role.id]=result.statement;state.npcVotes[role.id]=voteId;renderFinalCard(role,result.statement);addLog(role.id,result.statement,'final',`${role.number}號 ${role.name}｜最後陳述`);
@@ -466,7 +556,7 @@ async function generateFinalStatements() {
 }
 function demoFinalStatement(role,priv,targetId) {
   const target=getRole(targetId);
-  if(priv.culprit)return '我承認自己與案件中的某些爭議有關，但目前公開線索仍不足以證明我犯案。請大家注意其他角色在關鍵時間的行動。';
+  if(priv.is_culprit)return '我承認自己與案件中的某些爭議有關，但目前公開線索仍不足以證明我犯案。請大家注意其他角色在關鍵時間的行動。';
   return `我認為${target.name}的說法仍有需要釐清之處。我的確有不希望公開的私人事情，但那與殺害死者是兩回事。請依照時間線和實際線索判斷。`;
 }
 function openVote() {
@@ -483,7 +573,7 @@ async function submitVote() {
   try {
     let truth;
     if(state.mode==='groq')truth=await fetchWorker('/api/game/reveal',{session_token:state.sessionToken,case_id:getCase().id},300);
-    else truth=DEMO[getCase().id];
+    else truth=DEMO[getCase().id].truth;
     const aiVotes=Object.entries(state.npcVotes).map(([voter,target])=>({voter_id:voter,target_id:target}));
     renderReveal(truth,aiVotes);setScreen('revealScreen');
   } catch(e){showToast(`真相揭曉失敗：${e.message}`,6500);}
