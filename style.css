@@ -59,6 +59,126 @@
 @keyframes speechEnter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 @media(max-width:680px){.player-dossier-hero{grid-template-columns:105px 1fr;gap:12px}.player-dossier-hero>img{height:165px}.player-dossier-hero-meta h3{font-size:20px}.dossier-section{padding:12px}.dossier-row{font-size:11px}.duel-stage{grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);gap:5px;padding:12px 0}.duel-person{min-height:178px;padding:0 4px 9px}.duel-person-meta b{font-size:12px}.duel-person-meta small{font-size:8px}.duel-role-label{font-size:7px;top:6px;left:5px;padding:4px 5px}.duel-emblem{width:32px;height:32px;font-size:11px}.duel-center>small{font-size:6px}.duel-round{font-size:6px}.speech-row.question{padding-right:5%}.speech-row.answer{padding-left:5%}.speech{font-size:11px;padding:10px 11px}}
 
-/* V3.1.1 deployment marker */
-.build-badge{display:inline-flex;align-items:center;padding:6px 10px;border:1px solid rgba(216,181,110,.5);border-radius:999px;color:#f1d59a;font-size:10px;letter-spacing:.08em;white-space:nowrap;background:rgba(216,181,110,.08)}
-@media(max-width:640px){.build-badge{font-size:9px;padding:5px 7px}}
+
+/* V4: show complete faces/portraits rather than cropping only hair */
+.role-choice img{height:150px;aspect-ratio:auto;object-fit:contain;object-position:center 16%;background:radial-gradient(ellipse at 50% 28%,rgba(216,181,110,.13),rgba(10,8,7,.96) 72%);padding:4px}
+.roster-person img{height:92px;object-fit:contain;object-position:center 14%;background:rgba(0,0,0,.35);padding:2px}
+.intro-portrait-wrap{height:clamp(350px,54vw,560px);align-items:flex-end}
+.intro-portrait-wrap img{height:100%;width:100%;max-width:100%;object-fit:contain;object-position:center bottom}
+.player-dossier-hero>img,.player-card-inner img{object-fit:contain;object-position:center top;background:radial-gradient(ellipse at center,rgba(216,181,110,.12),rgba(7,6,5,.98) 75%);padding:5px}
+
+/* V4: visual-novel interrogation stage - two visible characters and one active speech bubble */
+.exchange-list{display:none!important}
+.duel-stage{grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr);gap:14px;align-items:stretch;padding:20px 0 18px;border-bottom:1px solid rgba(216,181,110,.18)}
+.duel-person{min-height:470px;position:relative;display:grid;grid-template-rows:34px 245px auto 1fr;justify-items:center;align-items:start;gap:8px;padding:13px 16px 16px;overflow:hidden;border:1px solid rgba(216,181,110,.22);background:linear-gradient(180deg,rgba(32,26,19,.86),rgba(9,8,7,.96));opacity:.42;filter:grayscale(1) brightness(.62);transform:scale(.985);transition:opacity .35s,filter .35s,transform .35s,border-color .35s,box-shadow .35s}
+.duel-person.is-speaking{opacity:1;filter:none;transform:scale(1.015);border-color:var(--gold);box-shadow:0 0 0 1px rgba(216,181,110,.18),0 0 38px rgba(216,181,110,.15)}
+.duel-person.is-listening{opacity:.48;filter:grayscale(.9) brightness(.7)}
+.duel-role-label{position:static;justify-self:start;font-size:9px;color:var(--gold2);letter-spacing:.18em;border:1px solid rgba(216,181,110,.3);padding:5px 9px;background:rgba(0,0,0,.35)}
+.duel-portrait-frame{width:100%;height:245px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,rgba(216,181,110,.15),rgba(0,0,0,.1) 62%)}
+.duel-person img{position:relative;inset:auto;width:auto;max-width:100%;height:100%;object-fit:contain;object-position:center top;mask-image:none;-webkit-mask-image:none;filter:drop-shadow(0 12px 24px rgba(0,0,0,.6));transition:transform .35s}
+.duel-person.is-speaking img{transform:scale(1.035)}
+.duel-person-meta{position:static;width:100%;padding:8px 10px;background:linear-gradient(90deg,rgba(216,181,110,.08),rgba(0,0,0,.3));text-align:center;border-top:1px solid rgba(216,181,110,.18);border-bottom:1px solid rgba(216,181,110,.18)}
+.duel-person-meta b{font-size:18px}.duel-person-meta small{font-size:10px}
+.duel-bubble{width:100%;min-height:116px;padding:13px 15px;background:rgba(6,6,5,.78);border:1px solid rgba(216,181,110,.2);border-radius:3px;text-align:left;align-self:stretch;transition:border-color .25s,box-shadow .25s,background .25s}
+.duel-bubble small{display:block;color:#aa9877;font:700 9px 'DM Sans';letter-spacing:.13em;margin-bottom:8px}
+.duel-bubble p{margin:0;color:#dcd2c2;font:13px/1.95 'Noto Serif TC';white-space:pre-wrap;min-height:48px}
+.duel-bubble.active-bubble{border-color:var(--gold);background:rgba(33,25,15,.95);box-shadow:0 0 22px rgba(216,181,110,.1)}
+.duel-bubble.active-bubble p{color:#fff2d7}
+.typing-caret::after{content:'▋';display:inline-block;margin-left:3px;color:var(--gold);animation:caretBlink .7s steps(1) infinite}
+@keyframes caretBlink{50%{opacity:0}}
+.duel-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-width:0}
+.duel-emblem{width:48px;height:48px;font-size:14px}
+.duel-center>small{text-align:center;line-height:1.5;font-size:7px}
+.duel-round{font-size:8px;text-align:center;color:var(--gold2);line-height:1.6}
+.speaking-indicator{position:static;opacity:0;transform:translateY(4px);justify-self:center;grid-row:4;color:var(--gold2);font-size:9px;letter-spacing:.12em;transition:.2s}
+.duel-person.is-speaking .speaking-indicator{opacity:1;transform:none}
+.journal-top-btn{font-size:15px}
+.journal-access-card{border-color:rgba(216,181,110,.4)}
+.journal-hint{font-size:10px;line-height:1.75;color:#aa9d89;margin:8px 0 12px}
+.journal-modal{width:min(900px,100%);max-height:90vh}
+.journal-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0;border-bottom:1px solid var(--line);padding-bottom:12px}
+.journal-tab{border:1px solid rgba(216,181,110,.25);background:rgba(0,0,0,.2);color:#c7b99f;padding:8px 12px;font-size:10px}
+.journal-tab.active{border-color:var(--gold);background:rgba(216,181,110,.13);color:var(--gold2)}
+.journal-content{max-height:65vh;overflow:auto;padding-right:5px;display:grid;gap:13px}
+.journal-read-section,.journal-story-section{padding:16px 18px;background:rgba(255,255,255,.025);border:1px solid rgba(216,181,110,.16)}
+.journal-read-section h3,.journal-story-section h3,.journal-task-panel h3{font:600 16px 'Noto Serif TC';color:var(--gold2);margin:0 0 12px}
+.journal-read-section p,.journal-story-section p{font:13px/2.15 'Noto Serif TC';color:#ded3c1;margin:0 0 12px;white-space:pre-line}
+.journal-read-section p:last-child,.journal-story-section p:last-child{margin-bottom:0}
+.journal-secret-story{border-color:rgba(185,75,67,.36);background:rgba(100,35,30,.09)}
+.journal-secret-story h3{color:#e2a39b}
+.journal-task-panel{padding:17px 18px;border:1px solid rgba(139,169,129,.35);background:rgba(75,105,63,.1)}
+.journal-task-panel p{font:12px/1.9 'Noto Serif TC';color:#d9d1c2;margin:7px 0}
+.journal-task-panel .task-objective{font-weight:700;color:#f0dfbd}
+.journal-task-panel b{font-size:11px;color:#c3d2ad}
+.journal-task-panel ul{margin:7px 0 12px;padding-left:20px;color:#d2c9b8;font:11px/1.9 'Noto Serif TC'}
+.journal-locked-panel{padding:14px 17px;border:1px dashed rgba(216,181,110,.35);color:#b5a68c;background:rgba(0,0,0,.2);font-size:11px;line-height:1.8}
+.journal-locked-panel b{color:var(--gold2)}.journal-locked-panel p{margin:6px 0 0}
+#playerCardContent .journal-story-section{margin-bottom:10px}
+#playerCardContent .journal-task-panel{margin-top:12px}
+#playerCardContent .journal-locked-panel{margin-top:12px}
+
+@media(max-width:760px){
+  .duel-stage{grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:5px}
+  .duel-person{min-height:390px;grid-template-rows:25px 185px auto 1fr;padding:8px 7px;gap:6px}
+  .duel-portrait-frame{height:185px}
+  .duel-person-meta b{font-size:12px}.duel-person-meta small{font-size:8px}
+  .duel-bubble{min-height:130px;padding:9px 8px}.duel-bubble p{font-size:10px;line-height:1.8}
+  .duel-role-label{font-size:7px;padding:4px 5px}
+  .duel-emblem{width:29px;height:29px;font-size:9px}.duel-center>small{font-size:5px}
+  .role-choice img{height:118px}
+  .journal-modal{padding:22px 14px}.journal-tab{font-size:9px;padding:7px 8px}
+}
+
+/* V4.1: place the dialogue bubble beside each character, like a visual novel conversation */
+.duel-person{grid-template-columns:minmax(115px,42%) minmax(0,1fr);grid-template-rows:30px minmax(210px,1fr) auto;align-items:stretch;justify-items:stretch;gap:8px 12px;min-height:340px;padding:12px 13px 14px}
+.duel-role-label{grid-column:1/-1;grid-row:1;align-self:start}
+.duel-portrait-frame{grid-column:1;grid-row:2;width:100%;height:100%;min-height:210px;align-self:stretch}
+.duel-person-meta{grid-column:1;grid-row:3;align-self:end}
+.duel-bubble{grid-column:2;grid-row:2/4;align-self:stretch;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;padding:14px 13px}
+.duel-bubble p{font-size:13px;line-height:2}
+.target-side .duel-bubble{grid-column:1;grid-row:2/4}
+.target-side .duel-portrait-frame{grid-column:2;grid-row:2}
+.target-side .duel-person-meta{grid-column:2;grid-row:3}
+.duel-person.is-speaking .duel-bubble{border-color:var(--gold);background:rgba(33,25,15,.96)}
+.speaking-indicator{grid-column:1/-1;grid-row:3;align-self:end;justify-self:center;position:absolute;bottom:3px;z-index:4}
+@media(max-width:760px){
+  .duel-person{grid-template-columns:minmax(70px,38%) minmax(0,1fr);grid-template-rows:24px minmax(160px,1fr) auto;min-height:320px;gap:6px;padding:7px 6px 10px}
+  .duel-portrait-frame{min-height:160px;height:100%}
+  .duel-bubble{padding:8px 7px;min-height:0}
+  .duel-bubble p{font-size:10px;line-height:1.85}
+  .duel-person-meta{padding:5px 3px}
+  .duel-person-meta b{font-size:10px}
+  .duel-person-meta small{font-size:7px}
+}
+
+.version-badge{font-size:9px;letter-spacing:.06em;color:#d2bb8e;border:1px solid rgba(216,181,110,.32);padding:6px 8px;border-radius:18px;white-space:nowrap}
+@media(max-width:680px){.version-badge{font-size:7px;padding:5px 6px}.topbar-right{gap:4px}}
+
+
+/* V4.3: consistent face-first portrait rendering; never crop a character's face */
+.face-portrait-image{object-fit:contain!important;object-position:center center!important;max-width:100%;}
+.role-choice img{width:100%!important;height:168px!important;object-fit:contain!important;object-position:center center!important;padding:5px!important;background:radial-gradient(ellipse at 50% 40%,rgba(216,181,110,.16),rgba(8,7,6,.96) 76%)!important;}
+.roster-person img{width:100%!important;height:100px!important;object-fit:contain!important;object-position:center center!important;padding:3px!important;background:rgba(0,0,0,.42)!important;}
+.intro-portrait-wrap{height:clamp(360px,54vw,590px)!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;overflow:visible!important;}
+.intro-portrait-wrap img{width:auto!important;height:100%!important;max-width:100%!important;object-fit:contain!important;object-position:center bottom!important;}
+.player-dossier-hero>img,.player-card-inner img{width:100%!important;height:260px!important;object-fit:contain!important;object-position:center center!important;padding:6px!important;background:radial-gradient(ellipse at center,rgba(216,181,110,.14),rgba(7,6,5,.98) 78%)!important;}
+.duel-portrait-frame{overflow:visible!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;}
+.duel-person img{width:auto!important;max-width:100%!important;height:100%!important;object-fit:contain!important;object-position:center center!important;mask-image:none!important;-webkit-mask-image:none!important;}
+.duel-person.is-speaking{filter:none!important;opacity:1!important;transform:scale(1.018)!important;border-color:var(--gold)!important;box-shadow:0 0 0 1px rgba(216,181,110,.22),0 0 36px rgba(216,181,110,.18)!important;}
+.duel-person.is-listening{filter:grayscale(.9) brightness(.55)!important;opacity:.38!important;}
+.novel-story{padding:22px 24px!important;}
+.novel-chapter{padding:15px 0 18px;border-bottom:1px solid rgba(216,181,110,.14);}
+.novel-chapter:last-child{border-bottom:0;padding-bottom:0;}
+.novel-chapter h4{font:600 15px 'Noto Serif TC';color:#d7b777;letter-spacing:.06em;margin:0 0 12px;}
+.novel-chapter p{font:14px/2.25 'Noto Serif TC';color:#e1d7c7;text-indent:2em;margin:0 0 14px;white-space:pre-line;}
+.novel-chapter p:last-child{margin-bottom:0;}
+@media(max-width:680px){
+ .intro-portrait-wrap{height:270px!important;}
+ .intro-portrait-wrap img{height:100%!important;width:auto!important;max-width:100%!important;object-fit:contain!important;}
+ .role-choice img{height:125px!important;}
+ .roster-person img{height:76px!important;}
+ .player-dossier-hero>img,.player-card-inner img{height:170px!important;}
+ .duel-portrait-frame{min-height:150px!important;}
+ .novel-story{padding:15px!important;}
+ .novel-chapter p{font-size:12px;line-height:2.05;}
+}

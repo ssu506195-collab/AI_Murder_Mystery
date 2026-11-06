@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=3.1.1">
+  <link rel="stylesheet" href="./style.css?v=4.4.0">
 </head>
 <body>
   <div class="grain"></div>
@@ -19,9 +19,9 @@
       <span><b>MYSTERY ROOM</b><small>AI MULTI-AGENT MURDER MYSTERY</small></span>
     </a>
     <div class="topbar-right">
-      <span class="build-badge" title="目前部署版本">V3.1.1 · 第一劇本</span>
-      <span id="modeBadge" class="mode-badge">尚未開始</span>
+      <span class="version-badge">V4.4｜第一劇本</span><span id="modeBadge" class="mode-badge">尚未開始</span>
       <span id="tokenBadge" class="token-badge">TOKEN 0</span>
+      <button id="openJournalTopBtn" class="icon-btn journal-top-btn" title="我的劇本與筆記" hidden>📖</button>
       <button id="settingsBtn" class="icon-btn" title="遊戲設定">⚙</button>
     </div>
   </header>
@@ -41,7 +41,7 @@
 
       <section class="case-select-section">
         <div class="section-title-row">
-          <div><div class="eyebrow">CHOOSE YOUR CASE</div><h2>選擇劇本</h2><p class="muted">每個案件都有不同人物、秘密與真相。場景圖目前先使用測試素材，之後可替換。</p></div>
+          <div><div class="eyebrow">CHOOSE YOUR CASE</div><h2>選擇劇本</h2><p class="muted">目前先專注完成第一份山莊案件；其他劇本待流程驗證完成後再加入。</p></div>
           <div class="case-count"><b id="caseCount">03</b><span>AVAILABLE CASES</span></div>
         </div>
         <div id="caseGrid" class="case-grid"></div>
@@ -72,6 +72,22 @@
         </div>
         <div class="modal-actions"><button id="saveSettingsBtn" class="gold-btn">儲存設定</button></div>
         <p class="tiny-disclaimer">注意：模擬劇本資料僅供流程測試；正式 AI 模式的角色秘密及真相由 Worker 端管理。瀏覽器端的 API Key 不會被寫入 localStorage。</p>
+      </div>
+    </div>
+
+    <!-- PLAYER JOURNAL -->
+    <div id="journalModal" class="modal-backdrop" hidden>
+      <div class="modal journal-modal">
+        <button class="modal-close" id="closeJournal">×</button>
+        <div class="eyebrow">YOUR PRIVATE JOURNAL</div>
+        <h2 id="journalTitle">我的劇本與調查筆記</h2>
+        <div class="journal-tabs" role="tablist">
+          <button class="journal-tab active" data-journal-tab="story">我的角色劇本</button>
+          <button class="journal-tab" data-journal-tab="known">我知道的事</button>
+          <button class="journal-tab" data-journal-tab="clues">公開線索</button>
+          <button class="journal-tab" data-journal-tab="log">公開紀錄</button>
+        </div>
+        <div id="journalContent" class="journal-content"></div>
       </div>
     </div>
 
@@ -126,7 +142,7 @@
     <!-- ROLE CARD / PLAYER PERSONAL INFO -->
     <section id="playerCardScreen" class="screen player-card-screen" hidden>
       <div class="eyebrow">YOUR CHARACTER FILE</div><h2>這是你的角色劇本</h2>
-      <p class="muted">這份資料只有你會看到。其他 AI 角色不會取得你的私人秘密；但他們可以根據公開發言推理你的身分與行動。</p>
+      <p class="muted">這是一份以小說方式撰寫的完整角色劇本，包含你的背景、關係、案發當晚經歷及秘密。各輪任務會在對應階段才解鎖。</p>
       <div id="playerCardContent" class="player-card-content"></div>
       <button id="beginInvestigationBtn" class="gold-btn">確認角色，開始公開調查 →</button>
     </section>
@@ -141,25 +157,28 @@
           <div class="interview-head"><div><div class="eyebrow" id="turnEyebrow">CURRENT INTERVIEW</div><h3 id="turnTitle">等待第一位角色</h3></div><div class="interview-limit" id="turnLimit">最多 3 組問答</div></div>
           <div class="interview-status" id="interviewStatus">請開始本輪公開詢問。</div>
           <div class="duel-stage" id="duelStage" aria-live="polite">
-            <div class="duel-person" id="stageAsker">
+            <article class="duel-person asker-side" id="stageAsker">
               <div class="duel-role-label">詢問方</div>
-              <img id="stageAskerPortrait" src="assets/portraits/chen-mo.webp" alt="詢問角色">
+              <div class="duel-portrait-frame"><img id="stageAskerPortrait" src="assets/portraits/face-chen-mo.webp" alt="詢問角色"></div>
               <div class="duel-person-meta"><b id="stageAskerName">等待角色</b><small id="stageAskerRole">詢問者</small></div>
+              <div class="duel-bubble" id="askerSpeechBubble"><small id="askerSpeechLabel">等待發言</small><p id="askerSpeechText">角色開始詢問後，對話會在這裡逐字顯示。</p></div>
               <div class="speaking-indicator">正在發言</div>
-            </div>
+            </article>
             <div class="duel-center"><span class="duel-emblem">VS</span><small>PUBLIC<br>INTERROGATION</small><div class="duel-round" id="duelRound">ROUND 01</div></div>
-            <div class="duel-person" id="stageTarget">
+            <article class="duel-person target-side" id="stageTarget">
               <div class="duel-role-label">回答方</div>
-              <img id="stageTargetPortrait" src="assets/portraits/lin-che.webp" alt="回答角色">
+              <div class="duel-portrait-frame"><img id="stageTargetPortrait" src="assets/portraits/face-lin-che.webp" alt="回答角色"></div>
               <div class="duel-person-meta"><b id="stageTargetName">等待角色</b><small id="stageTargetRole">回答者</small></div>
+              <div class="duel-bubble" id="targetSpeechBubble"><small id="targetSpeechLabel">等待發言</small><p id="targetSpeechText">被詢問的角色將在這裡回答。</p></div>
               <div class="speaking-indicator">正在發言</div>
-            </div>
+            </article>
           </div>
-          <div id="exchangeList" class="exchange-list"></div>
+          <div id="exchangeList" class="exchange-list" hidden></div>
           <div id="playerActionArea" class="player-action-area" hidden></div>
           <div class="interview-actions"><button id="startTurnBtn" class="gold-btn">開始本位角色詢問 →</button><button id="endInterviewBtn" class="secondary-btn" hidden>提前結束本次詢問</button><button id="nextTurnBtn" class="gold-btn" hidden>下一位角色 →</button></div>
         </div>
         <aside class="investigation-side">
+          <section class="side-card journal-access-card"><div class="side-title">玩家資料 <small>YOUR FILE</small></div><p class="journal-hint">隨時查看自己的角色故事、目前任務、已知資訊及所有公開證詞。</p><button id="openJournalBtn" class="secondary-btn full">📖 我的劇本與筆記</button></section>
           <section class="side-card"><div class="side-title">公開線索 <small>PUBLIC CLUES</small></div><div id="clueStack" class="clue-stack"></div></section>
           <section class="side-card"><div class="side-title">公開紀錄 <small>EVERYONE CAN HEAR</small></div><div id="publicTranscript" class="public-transcript"></div></section>
         </aside>
@@ -200,8 +219,8 @@
   <div id="busyOverlay" class="busy-overlay" hidden><div class="spinner"></div><b id="busyText">角色正在思考……</b><small>為避免超過 API 速率限制，AI 角色會依序發言。</small></div>
   <div id="toast" class="toast" role="status"></div>
 
-  <script src="./data/cases.js?v=3.1.1"></script>
-  <script src="./data/demo-private.js?v=3.1.1"></script>
-  <script src="./app.js?v=3.1.1"></script>
+  <script src="./data/cases.js?v=4.4.0"></script>
+  <script src="./data/demo-private.js?v=4.4.0"></script>
+  <script src="./app.js?v=4.4.0"></script>
 </body>
 </html>
